@@ -14,12 +14,12 @@ class _HomeState extends State<Home> {
   File? _image; // Nullable type
   List<Predictions> _output = []; // Initialize as an empty list
   ImagePicker picker = ImagePicker();
-
   @override
   void initState() {
     super.initState();
     _loading = false;
-    _image = null;}
+    _image = null;
+  }
 
   @override
   void dispose() {
@@ -27,7 +27,8 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> classifyImage(File image) async {
-    const url = 'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/b874109f-ffeb-428f-a30b-a9db47b75f26/classify/iterations/Iteration1/image';
+    const url =
+        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/b874109f-ffeb-428f-a30b-a9db47b75f26/classify/iterations/Iteration1/image';
     final headers = {
       'Prediction-Key': '6c41e9fb16f64bf39c334fb6ae1761bc',
       'Content-Type': 'application/octet-stream',
@@ -57,14 +58,17 @@ class _HomeState extends State<Home> {
       // Handle error here
       print('Failed with status ${response.statusCode}');
       setState(() {
-        _loading = false; // Set _loading to false if an error occurs during prediction
+        _loading =
+            false; // Set _loading to false if an error occurs during prediction
       });
     }
   }
 
-  Future<void> pickImage() async {
-    var image = await picker.pickImage(source: ImageSource.camera);
-    if (image == null) return; // Handle the case when the user cancels image selection
+  Future<void> pickImage(ImageSource imageSource) async {
+    var image = await picker.pickImage(source: imageSource);
+    if (image == null) {
+      return; // Handle the case when the user cancels image selection
+    }
 
     setState(() {
       _image = File(image.path);
@@ -82,7 +86,6 @@ class _HomeState extends State<Home> {
       });
     });
   }
-
 
   @override
   @override
@@ -117,50 +120,51 @@ class _HomeState extends State<Home> {
                 child: _loading
                     ? const CircularProgressIndicator()
                     : _image != null
-                    ? Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.width * 0.5,
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Image.file(
-                          _image!,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ),
-                    const Divider(
-                      height: 25,
-                      thickness: 1,
-                    ),
-                    // ignore: unnecessary_null_comparison
-                    if (_output != null && _output.isNotEmpty)
-                      Text(
-                        'The teeth has : ${_output.isNotEmpty ? _output[0].tagName : ""}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    const Divider(
-                      height: 25,
-                      thickness: 1,
-                    ),
-                  ],
-                )
-                    : const Text('No image selected'), // Show "No image selected" message
+                        ? Column(
+                            children: [
+                              SizedBox(
+                                height: MediaQuery.of(context).size.width * 0.5,
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(30),
+                                  child: Image.file(
+                                    _image!,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                              const Divider(
+                                height: 25,
+                                thickness: 1,
+                              ),
+                              // ignore: unnecessary_null_comparison
+                              if (_output != null && _output.isNotEmpty)
+                                Text(
+                                  'The teeth has : ${_output.isNotEmpty ? _output[0].tagName : ""}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              const Divider(
+                                height: 25,
+                                thickness: 1,
+                              ),
+                            ],
+                          )
+                        : const Text(
+                            'No image selected'), // Show "No image selected" message
               ),
               Column(
                 children: [
                   GestureDetector(
-                    onTap: pickImage,
+                    onTap: () => pickImage(ImageSource.camera),
                     child: Container(
                       width: MediaQuery.of(context).size.width - 200,
                       alignment: Alignment.center,
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 17),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 17),
                       decoration: BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(15),
@@ -172,7 +176,24 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  // Remove the GestureDetector for "Pick From Gallery"
+                  GestureDetector(
+                    onTap: () => pickImage(ImageSource
+                        .gallery), // Call the new function for gallery image selection
+                    child: Container(
+                      width: MediaQuery.of(context).size.width - 200,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 17),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Text(
+                        'Pick From Gallery',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -182,6 +203,7 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
 class DentalRec {
   String? id;
   String? project;
