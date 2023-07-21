@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:dentalrecognitionproject/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
   _HomeState createState() => _HomeState();
 }
@@ -30,7 +33,8 @@ class _HomeState extends State<Home> {
       _loading = true;
     });
 
-    const url = 'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/b874109f-ffeb-428f-a30b-a9db47b75f26/classify/iterations/Iteration1/image';
+    const url =
+        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/b874109f-ffeb-428f-a30b-a9db47b75f26/classify/iterations/Iteration1/image';
     final headers = {
       'Prediction-Key': '6c41e9fb16f64bf39c334fb6ae1761bc',
       'Content-Type': 'application/octet-stream',
@@ -103,41 +107,41 @@ class _HomeState extends State<Home> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Center(
-                child: _loading == true
-                    ? null //show nothing if no picture selected
+                child: _loading
+                    ? const LoadingWidget()
                     : Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.width * 0.5,
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Image.file(
-                          _image,
-                          fit: BoxFit.fill,
-                        ),
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.width * 0.5,
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: Image.file(
+                                _image,
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          const Divider(
+                            height: 25,
+                            thickness: 1,
+                          ),
+                          // ignore: unnecessary_null_comparison
+                          if (_output != null && _output.isNotEmpty)
+                            Text(
+                              'The teeth has : ${_output.isNotEmpty ? _output[0].tagName : ""}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          const Divider(
+                            height: 25,
+                            thickness: 1,
+                          ),
+                        ],
                       ),
-                    ),
-                    const Divider(
-                      height: 25,
-                      thickness: 1,
-                    ),
-                    // ignore: unnecessary_null_comparison
-                    if (_output != null && _output.isNotEmpty)
-                      Text(
-                        'The teeth has : ${_output.isNotEmpty ? _output[0].tagName : ""}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    const Divider(
-                      height: 25,
-                      thickness: 1,
-                    ),
-                  ],
-                ),
               ),
               Column(
                 children: [
@@ -146,8 +150,8 @@ class _HomeState extends State<Home> {
                     child: Container(
                       width: MediaQuery.of(context).size.width - 200,
                       alignment: Alignment.center,
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 17),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 17),
                       decoration: BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(15),
@@ -169,6 +173,7 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
 class DentalRec {
   String? id;
   String? project;
@@ -187,19 +192,19 @@ class DentalRec {
     if (json['predictions'] != null) {
       predictions = <Predictions>[];
       json['predictions'].forEach((v) {
-        predictions!.add(new Predictions.fromJson(v));
+        predictions!.add(Predictions.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['project'] = this.project;
-    data['iteration'] = this.iteration;
-    data['created'] = this.created;
-    if (this.predictions != null) {
-      data['predictions'] = this.predictions!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['project'] = project;
+    data['iteration'] = iteration;
+    data['created'] = created;
+    if (predictions != null) {
+      data['predictions'] = predictions!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -219,10 +224,10 @@ class Predictions {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['probability'] = this.probability;
-    data['tagId'] = this.tagId;
-    data['tagName'] = this.tagName;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['probability'] = probability;
+    data['tagId'] = tagId;
+    data['tagName'] = tagName;
     return data;
   }
 }
