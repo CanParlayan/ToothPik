@@ -13,7 +13,7 @@ class _HomeState extends State<Home> {
   bool _loading = true;
   late File _image;
   List<Predictions> _output = []; // Initialize as an empty list
-  final picker = ImagePicker();
+  ImagePicker picker = ImagePicker();
 
   @override
   void initState() {
@@ -64,19 +64,8 @@ class _HomeState extends State<Home> {
     }
   }
 
-
   pickImage() async {
     var image = await picker.pickImage(source: ImageSource.camera);
-    if (image == null) return null;
-
-    setState(() {
-      _image = File(image.path);
-    });
-    classifyImage(_image);
-  }
-
-  pickGalleryImage() async {
-    var image = await picker.pickImage(source: ImageSource.gallery);
     if (image == null) return null;
 
     setState(() {
@@ -117,38 +106,37 @@ class _HomeState extends State<Home> {
                 child: _loading == true
                     ? null //show nothing if no picture selected
                     : Column(
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.width * 0.5,
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(30),
-                            child: Image.file(
-                              _image,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.5,
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Image.file(
+                          _image,
+                          fit: BoxFit.fill,
                         ),
-                        const Divider(
-                          height: 25,
-                          thickness: 1,
+                      ),
+                    ),
+                    const Divider(
+                      height: 25,
+                      thickness: 1,
+                    ),
+                    // ignore: unnecessary_null_comparison
+                    if (_output != null && _output.isNotEmpty)
+                      Text(
+                        'The teeth has : ${_output.isNotEmpty ? _output[0].tagName : ""}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
                         ),
-                        // ignore: unnecessary_null_comparison
-                        if (_output != null && _output.isNotEmpty)
-                          Text(
-                            'The teeth has : ${_output.isNotEmpty ? _output[0].tagName : ""}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-
-                        const Divider(
-                          height: 25,
-                          thickness: 1,
-                        ),
-                      ],
+                      ),
+                    const Divider(
+                      height: 25,
+                      thickness: 1,
+                    ),
+                  ],
                 ),
               ),
               Column(
@@ -171,23 +159,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  GestureDetector(
-                    onTap: pickGalleryImage,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width - 200,
-                      alignment: Alignment.center,
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 17),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: const Text(
-                        'Pick From Gallery',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ),
-                  ),
+                  // Remove the GestureDetector for "Pick From Gallery"
                 ],
               ),
             ],
