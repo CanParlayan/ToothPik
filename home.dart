@@ -10,26 +10,23 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool _loading = true;
-  late File _image;
+  bool _loading = false;
+  File? _image; // Nullable type
   List<Predictions> _output = []; // Initialize as an empty list
   ImagePicker picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-  }
+    _loading = false;
+    _image = null;}
 
   @override
   void dispose() {
     super.dispose();
   }
 
-  Future classifyImage(File image) async {
-    setState(() {
-      _loading = true;
-    });
-
+  Future<void> classifyImage(File image) async {
     const url = 'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/b874109f-ffeb-428f-a30b-a9db47b75f26/classify/iterations/Iteration1/image';
     final headers = {
       'Prediction-Key': '6c41e9fb16f64bf39c334fb6ae1761bc',
@@ -51,29 +48,43 @@ class _HomeState extends State<Home> {
       List<Predictions> predictions = predictionsJson
           .map((json) => Predictions.fromJson(json))
           .toList(); // Convert JSON data to Predictions objects
+
       setState(() {
         _output = predictions;
-        _loading = false;
+        _loading = false; // Set _loading to false after prediction is completed
       });
     } else {
       // Handle error here
       print('Failed with status ${response.statusCode}');
       setState(() {
-        _loading = false;
+        _loading = false; // Set _loading to false if an error occurs during prediction
       });
     }
   }
 
-  pickImage() async {
+  Future<void> pickImage() async {
     var image = await picker.pickImage(source: ImageSource.camera);
-    if (image == null) return null;
+    if (image == null) return; // Handle the case when the user cancels image selection
 
     setState(() {
       _image = File(image.path);
+      _loading = true;
     });
-    classifyImage(_image);
+
+    classifyImage(_image!).then((_) {
+      setState(() {
+        _loading = false;
+      });
+    }).catchError((error) {
+      print('Error during prediction: $error');
+      setState(() {
+        _loading = false;
+      });
+    });
   }
 
+
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,9 +114,10 @@ class _HomeState extends State<Home> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Center(
-                child: _loading == true
-                    ? null //show nothing if no picture selected
-                    : Column(
+                child: _loading
+                    ? const CircularProgressIndicator()
+                    : _image != null
+                    ? Column(
                   children: [
                     SizedBox(
                       height: MediaQuery.of(context).size.width * 0.5,
@@ -113,7 +125,7 @@ class _HomeState extends State<Home> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(30),
                         child: Image.file(
-                          _image,
+                          _image!,
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -137,7 +149,8 @@ class _HomeState extends State<Home> {
                       thickness: 1,
                     ),
                   ],
-                ),
+                )
+                    : const Text('No image selected'), // Show "No image selected" message
               ),
               Column(
                 children: [
