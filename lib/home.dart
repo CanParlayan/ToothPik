@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:dentalrecognitionproject/classify.dart';
+import 'package:dentalrecognitionproject/infoscreen.dart';
 import 'package:dentalrecognitionproject/prediction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dentalrecognitionproject/infoscreen.dart';
-import 'package:get/get.dart';
-import 'app_translations.dart';
 
 // Import the image package
 
@@ -78,23 +78,22 @@ class _HomeState extends State<Home> {
 
     // Check if teeth are detected in the image
     bool containsTeeth =
-    _output.any((prediction) => prediction.tagName == 'teeth');
+        _output.any((prediction) => prediction.tagName == 'teeth');
 
     if (!containsTeeth) {
       // If teeth are not detected, show a message
       showDialog(
         context: context,
-        builder: (context) =>
-            AlertDialog(
-              title: const Text('No teeth detected'),
-              content: const Text('Please take a photo of your teeth.'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('OK'),
-                ),
-              ],
+        builder: (context) => AlertDialog(
+          title: Text('noTeeth'.tr),
+          content: Text('pTakePhoto'.tr),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('ok'.tr),
             ),
+          ],
+        ),
       );
     } else {
       // If teeth are detected, proceed to check for cavities using another API
@@ -125,34 +124,32 @@ class _HomeState extends State<Home> {
 
           setState(() {
             _resultText = hasCavity
-                ? 'Your teeth have a cavity.'
-                : 'Your teeth are cavity-free.';
+                ? 'hasCavity'.tr
+                : 'hasNoCavity'.tr;
           });
 
           // Show the result to the user
           showDialog(
             context: context,
-            builder: (context) =>
-                AlertDialog(
-                  title: const Text('Teeth Classification Result'),
-                  content: Text(hasCavity
-                      ? 'Your teeth have a cavity.'
-                      : 'Your teeth are cavity-free.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('OK'),
-                    ),
-                  ],
+            builder: (context) => AlertDialog(
+              title: Text('teethRes'.tr),
+              content: Text(hasCavity
+                  ? 'hasCavity'.tr
+                  : 'hasNoCavity'.tr),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('ok'.tr),
                 ),
+              ],
+            ),
           );
           _pinchToZoomOverlayVisible = true;
         } else {
           // Handle error from the cavity detection API here
           if (kDebugMode) {
             print(
-                'Failed to check for cavity with status ${cavityResponse
-                    .statusCode}');
+                'Failed to check for cavity with status ${cavityResponse.statusCode}');
           }
 
           String errorMessage;
@@ -165,17 +162,16 @@ class _HomeState extends State<Home> {
           // Show the error message to the user
           showDialog(
             context: context,
-            builder: (context) =>
-                AlertDialog(
-                  title: const Text('Error'),
-                  content: Text(errorMessage),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('OK'),
-                    ),
-                  ],
+            builder: (context) => AlertDialog(
+              title: Text('Error'),
+              content: Text(errorMessage),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('ok'.tr),
                 ),
+              ],
+            ),
           );
         }
       } catch (e) {
@@ -187,18 +183,16 @@ class _HomeState extends State<Home> {
         // Show a generic error message to the user
         showDialog(
           context: context,
-          builder: (context) =>
-              AlertDialog(
-                title: const Text('Error'),
-                content: const Text(
-                    'An error occurred. Please try again later.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('An error occurred. Please try again later.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
               ),
+            ],
+          ),
         );
       }
     }
@@ -225,7 +219,12 @@ class _HomeState extends State<Home> {
   void _changeLanguage(String languageCode, String? countryCode) {
     Locale locale = Locale(languageCode, countryCode);
     Get.updateLocale(locale);
+
+    // Call setState to trigger a rebuild of the widget and update the displayed text
+    setState(() {});
   }
+
+
 
   void _resetResultTextAndPickImage(ImageSource source) {
     setState(() {
@@ -239,52 +238,51 @@ class _HomeState extends State<Home> {
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.6,
         child: GestureDetector(
-          onTap: () {},
+          onTap: () {
+            setState(() {
+              _pinchToZoomOverlayVisible =
+                  false; // Hide the overlay when the image is tapped
+            });
+          },
           child: Stack(
             children: [
               Center(
                 child: _loading
                     ? const CircularProgressIndicator()
                     : _image != null
-                    ? FutureBuilder<Size>(
-                  future: _getImageSize(FileImage(_image!)),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      Size imageSize = snapshot.data!;
-                      double imageWidth = imageSize.width;
-                      double imageHeight = imageSize.height;
-
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child: GestureDetector(
-                          onTap: () {
-                            FocusScope.of(context).unfocus();
-                            setState(() {
-                              _pinchToZoomOverlayVisible = false;
-                            });
-                          },
-                          child: InteractiveViewer(
-                            maxScale: 7.0,
-                            child: Image.file(
-                              _image!,
-                              fit: BoxFit.contain,
-                              width: imageWidth,
-                              height: imageHeight,
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: GestureDetector(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                setState(() {
+                                  _pinchToZoomOverlayVisible = false;
+                                });
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(30),
+                                child: InteractiveViewer(
+                                  maxScale: 7.0,
+                                  child: Image.file(
+                                    _image!,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: Text(
+                              'noImage'.tr,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    } else {
-                      return Container();
-                    }
-                  },
-                )
-                    : Text(
-                  'noImage'.tr,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                ),
               ),
-              if (_pinchToZoomOverlayVisible) _buildPinchToZoomOverlay(),
+              if (_pinchToZoomOverlayVisible)
+                _buildPinchToZoomOverlay(BorderRadius.circular(50)),
             ],
           ),
         ),
@@ -292,20 +290,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-
-  Future<Size> _getImageSize(ImageProvider imageProvider) {
-    Completer<Size> completer = Completer<Size>();
-    imageProvider.resolve(ImageConfiguration()).addListener(
-      ImageStreamListener((ImageInfo image, bool synchronousCall) {
-        var imageSize = Size(image.image.width.toDouble(), image.image.height.toDouble());
-        completer.complete(imageSize);
-      }),
-    );
-    return completer.future;
-  }
-
-
-  Widget _buildPinchToZoomOverlay() {
+  Widget _buildPinchToZoomOverlay(BorderRadius borderRadius) {
     return Positioned.fill(
       child: AbsorbPointer(
         absorbing: _loading || !_pinchToZoomOverlayVisible,
@@ -316,14 +301,11 @@ class _HomeState extends State<Home> {
             });
           },
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
-              color: Colors.grey.withOpacity(0.5),
-              child: const Center(
-                child: Text(
-                  'Pinch to Zoom',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
+            borderRadius: borderRadius, // Use the passed border radius
+            child: Center(
+              child: Text(
+                'zoom'.tr,
+                style: const TextStyle(color: Colors.white, fontSize: 20),
               ),
             ),
           ),
@@ -387,10 +369,7 @@ class _HomeState extends State<Home> {
                       _resetResultTextAndPickImage(ImageSource.camera);
                     },
                     child: Container(
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width - 200,
+                      width: MediaQuery.of(context).size.width - 200,
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 17),
@@ -400,7 +379,8 @@ class _HomeState extends State<Home> {
                       ),
                       child: Text(
                         'takePhoto'.tr,
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                   ),
@@ -411,16 +391,21 @@ class _HomeState extends State<Home> {
                       _resetResultTextAndPickImage(ImageSource.gallery);
                     },
                     child: Container(
-                      width: 200, // Adjust the width as needed
-                      height: 50, // Adjust the height as needed
+                      width: 200,
+                      // Adjust the width as needed
+                      height: 50,
+                      // Adjust the height as needed
                       decoration: BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Center( // Center both the button and text
+                      child: Center(
+                        // Center both the button and text
                         child: Text(
-                          'pickGallery'.tr, // Assuming 'tr' is a method to get the translated text
-                          style: const TextStyle(color: Colors.white, fontSize: 16),
+                          'pickGallery'.tr,
+                          // Assuming 'tr' is a method to get the translated text
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 16),
                         ),
                       ),
                     ),
@@ -428,7 +413,7 @@ class _HomeState extends State<Home> {
 // Divider
                   const SizedBox(height: 30),
                   Text(
-                    _resultText, // Display the result text
+                    _resultText.tr, // Display the result text
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
