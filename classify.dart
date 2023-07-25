@@ -1,11 +1,8 @@
 import 'package:dentalrecognitionproject/prediction.dart';
 import 'dart:io';
 import 'dart:convert';
-import 'package:dentalrecognitionproject/prediction.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import 'abstractimageclassifier.dart';
 class ImageClassifier implements ImageClassification {
   @override
@@ -25,6 +22,7 @@ class ImageClassifier implements ImageClassification {
     );
 
     if (response.statusCode == 200) {
+      print(response.body);
       var data = jsonDecode(response.body);
       List<dynamic> predictionsJson = data['predictions'];
 
