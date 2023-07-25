@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:dentalrecognitionproject/classify.dart';
 import 'package:dentalrecognitionproject/prediction.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dentalrecognitionproject/infoscreen.dart';
+import 'package:get/get.dart';
+import 'app_translations.dart';
 
 // Import the image package
 
@@ -41,6 +45,7 @@ class _HomeState extends State<Home> {
   void dispose() {
     super.dispose();
   }
+
   Future<void> showInfoScreenIfNeeded() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool shouldShowInfoScreen = prefs.getBool('showInfoScreen') ?? true;
@@ -73,22 +78,23 @@ class _HomeState extends State<Home> {
 
     // Check if teeth are detected in the image
     bool containsTeeth =
-        _output.any((prediction) => prediction.tagName == 'teeth');
+    _output.any((prediction) => prediction.tagName == 'teeth');
 
     if (!containsTeeth) {
       // If teeth are not detected, show a message
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('No teeth detected'),
-          content: const Text('Please take a photo of your teeth.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+        builder: (context) =>
+            AlertDialog(
+              title: const Text('No teeth detected'),
+              content: const Text('Please take a photo of your teeth.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
     } else {
       // If teeth are detected, proceed to check for cavities using another API
@@ -126,25 +132,27 @@ class _HomeState extends State<Home> {
           // Show the result to the user
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Teeth Classification Result'),
-              content: Text(hasCavity
-                  ? 'Your teeth have a cavity.'
-                  : 'Your teeth are cavity-free.'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('OK'),
+            builder: (context) =>
+                AlertDialog(
+                  title: const Text('Teeth Classification Result'),
+                  content: Text(hasCavity
+                      ? 'Your teeth have a cavity.'
+                      : 'Your teeth are cavity-free.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('OK'),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           );
           _pinchToZoomOverlayVisible = true;
         } else {
           // Handle error from the cavity detection API here
           if (kDebugMode) {
             print(
-                'Failed to check for cavity with status ${cavityResponse.statusCode}');
+                'Failed to check for cavity with status ${cavityResponse
+                    .statusCode}');
           }
 
           String errorMessage;
@@ -157,16 +165,17 @@ class _HomeState extends State<Home> {
           // Show the error message to the user
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Error'),
-              content: Text(errorMessage),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('OK'),
+            builder: (context) =>
+                AlertDialog(
+                  title: const Text('Error'),
+                  content: Text(errorMessage),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('OK'),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           );
         }
       } catch (e) {
@@ -178,16 +187,18 @@ class _HomeState extends State<Home> {
         // Show a generic error message to the user
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Error'),
-            content: const Text('An error occurred. Please try again later.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
+          builder: (context) =>
+              AlertDialog(
+                title: const Text('Error'),
+                content: const Text(
+                    'An error occurred. Please try again later.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
     }
@@ -211,51 +222,88 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void _changeLanguage(String languageCode, String? countryCode) {
+    Locale locale = Locale(languageCode, countryCode);
+    Get.updateLocale(locale);
+  }
+
+  void _resetResultTextAndPickImage(ImageSource source) {
+    setState(() {
+      _resultText = '';
+    });
+    pickImage(source);
+  }
+
   Widget _buildInteractiveViewer() {
     return Expanded(
-      child: GestureDetector(
-        onTap: () {}, // Empty function to consume the touch event
-        child: Stack(
-          children: [
-            Center(
-              child: _loading
-                  ? const CircularProgressIndicator()
-                  : _image != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: GestureDetector(
-                            onTap: () {
-                              // Dismiss the keyboard if open
-                              FocusScope.of(context).unfocus();
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.6,
+        child: GestureDetector(
+          onTap: () {},
+          child: Stack(
+            children: [
+              Center(
+                child: _loading
+                    ? const CircularProgressIndicator()
+                    : _image != null
+                    ? FutureBuilder<Size>(
+                  future: _getImageSize(FileImage(_image!)),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      Size imageSize = snapshot.data!;
+                      double imageWidth = imageSize.width;
+                      double imageHeight = imageSize.height;
 
-                              // Hide the "Pinch to Zoom" overlay when the image is touched
-                              setState(() {
-                                _pinchToZoomOverlayVisible = false;
-                              });
-                            },
-                            child: InteractiveViewer(
-                              maxScale: 7.0,
-                              child: SingleChildScrollView(
-                                child: Image.file(
-                                  _image!,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: GestureDetector(
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                            setState(() {
+                              _pinchToZoomOverlayVisible = false;
+                            });
+                          },
+                          child: InteractiveViewer(
+                            maxScale: 7.0,
+                            child: Image.file(
+                              _image!,
+                              fit: BoxFit.contain,
+                              width: imageWidth,
+                              height: imageHeight,
                             ),
                           ),
-                        )
-                      : const Text(
-                          'No image selected',
-                          style: TextStyle(color: Colors.white),
                         ),
-            ),
-            // Show "Pinch to Zoom" overlay only if _pinchToZoomOverlayVisible is true
-            if (_pinchToZoomOverlayVisible) _buildPinchToZoomOverlay(),
-          ],
+                      );
+                    } else {
+                      return Container();
+                    }
+                  },
+                )
+                    : Text(
+                  'noImage'.tr,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+              if (_pinchToZoomOverlayVisible) _buildPinchToZoomOverlay(),
+            ],
+          ),
         ),
       ),
     );
   }
+
+
+  Future<Size> _getImageSize(ImageProvider imageProvider) {
+    Completer<Size> completer = Completer<Size>();
+    imageProvider.resolve(ImageConfiguration()).addListener(
+      ImageStreamListener((ImageInfo image, bool synchronousCall) {
+        var imageSize = Size(image.image.width.toDouble(), image.image.height.toDouble());
+        completer.complete(imageSize);
+      }),
+    );
+    return completer.future;
+  }
+
 
   Widget _buildPinchToZoomOverlay() {
     return Positioned.fill(
@@ -290,14 +338,32 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         backgroundColor: Colors.indigo,
         centerTitle: true,
-        title: const Text(
-          'Dental Recognition',
-          style: TextStyle(
+        title: Text(
+          'appTitle'.tr,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w500,
             fontSize: 23,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => _changeLanguage('en', 'US'),
+            icon: SvgPicture.asset(
+              'assets/flags/gb.svg',
+              width: 24,
+              height: 24,
+            ),
+          ),
+          IconButton(
+            onPressed: () => _changeLanguage('tr', ''),
+            icon: SvgPicture.asset(
+              'assets/flags/tr.svg',
+              width: 24,
+              height: 24,
+            ),
+          ),
+        ],
       ),
       body: Container(
         color: const Color.fromRGBO(68, 190, 255, 0.8),
@@ -321,7 +387,10 @@ class _HomeState extends State<Home> {
                       _resetResultTextAndPickImage(ImageSource.camera);
                     },
                     child: Container(
-                      width: MediaQuery.of(context).size.width - 200,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width - 200,
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 17),
@@ -329,9 +398,9 @@ class _HomeState extends State<Home> {
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: const Text(
-                        'Take A Photo',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      child: Text(
+                        'takePhoto'.tr,
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                   ),
@@ -348,15 +417,15 @@ class _HomeState extends State<Home> {
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: const Center( // Center both the button and text
+                      child: Center( // Center both the button and text
                         child: Text(
-                          'Pick From Gallery',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          'pickGallery'.tr, // Assuming 'tr' is a method to get the translated text
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
                         ),
                       ),
                     ),
                   ),
-                  // Divider
+// Divider
                   const SizedBox(height: 30),
                   Text(
                     _resultText, // Display the result text
@@ -365,6 +434,7 @@ class _HomeState extends State<Home> {
                       fontSize: 16,
                     ),
                   ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ],
@@ -372,12 +442,5 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
-  }
-
-  void _resetResultTextAndPickImage(ImageSource source) {
-    setState(() {
-      _resultText = ''; // Reset the _resultText variable
-    });
-    pickImage(source); // Call the pickImage function with the specified source
   }
 }
