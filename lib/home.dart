@@ -221,7 +221,13 @@ class _HomeState extends State<Home> {
     Get.updateLocale(locale);
 
     // Call setState to trigger a rebuild of the widget and update the displayed text
-    setState(() {});
+    setState(() {
+      _resultText = _output.isEmpty
+          ? '' // If _output is empty, keep the resultText empty
+          : _output[0].tagName == 'teeth'
+          ? 'hasNoCavity'.tr
+          : 'hasCavity'.tr;
+    });
   }
 
 
