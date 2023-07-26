@@ -19,8 +19,9 @@ class AppTranslations extends Translations {
       "When taking the photo, Please make sure your teeth are clearly visible and your camera's flash is on and the light does not cast a shadow.",
       "dShow": "Don't Show Again",
       "err": "Error",
-      "zoom": "Pinch to Zoom"
-    },
+      "zoom": "Pinch to Zoom",
+  "internet" : "No internet connection. Please connect to the internet."
+},
     'tr': {
       "appTitle": "Diş Tanıma",
       "takePhoto": "Fotoğraf Çek",
@@ -37,7 +38,7 @@ class AppTranslations extends Translations {
       "Fotoğraf çekerken lütfen kameranızın flaşının açık olduğundan ve dişlerinizin net bir şekilde görünüp ışığın gölge yapmadığından emin olunuz.",
       "dShow": "Tekrar Gösterme",
       "err": "Hata",
-      "zoom": "Yakınlaştır"
-    },
+      "zoom": "Yakınlaştır",
+       "internet":"İnternet bağlantısı yok. Lütfen internete bağlanın."  },
   };
 }

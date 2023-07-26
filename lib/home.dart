@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:dentalrecognitionproject/classify.dart';
 import 'package:dentalrecognitionproject/infoscreen.dart';
 import 'package:dentalrecognitionproject/prediction.dart';
@@ -61,6 +62,25 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> classifyImage(BuildContext context, File image) async {
+    // Check for internet connectivity
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      // Show an error dialog if there's no internet connection
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('err'.tr),
+          content: Text('internet'.tr),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('ok'.tr),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
     setState(() {
       _loading = true;
     });
@@ -163,7 +183,7 @@ class _HomeState extends State<Home> {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text('Error'),
+              title: const Text('Error'),
               content: Text(errorMessage),
               actions: [
                 TextButton(
