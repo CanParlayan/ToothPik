@@ -2,13 +2,32 @@ import 'package:dentalrecognitionproject/prediction.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'abstractimageclassifier.dart';
+import 'dart:async';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'package:connectivity/connectivity.dart';
+import 'package:dentalrecognitionproject/classify.dart';
+import 'package:dentalrecognitionproject/infoscreen.dart';
+import 'package:dentalrecognitionproject/prediction.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class ImageClassifier implements ImageClassification {
+  final BuildContext context;
+
+  ImageClassifier(this.context);
   @override
   Future<List<Predictions>> classify(File image) async {
     const url =
-        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1b465330-89d1-4acf-90c3-a64f76114ad3/detect/iterations/Iteration2/image';
+        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1b465330-89d1-4acf-90c3-a64f76114ad3/detect/iterations/Iteration3/image';
     final headers = {
       'Prediction-Key': '6c41e9fb16f64bf39c334fb6ae1761bc',
       'Content-Type': 'application/octet-stream',
@@ -20,7 +39,19 @@ class ImageClassifier implements ImageClassification {
       headers: headers,
       body: bytes,
     );
-
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('err'.tr),
+        content: Text('internet'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('ok'.tr),
+          ),
+        ],
+      ),
+    );
     if (response.statusCode == 200) {
       print(response.body);
       var data = jsonDecode(response.body);
@@ -32,10 +63,24 @@ class ImageClassifier implements ImageClassification {
 
       return predictions;
     } else {
-      // Handle error here
-      if (kDebugMode) {
-        print('Failed with status ${response.statusCode}');
-      }
+      showDialog(
+        context: context, // You'll need to pass the app's context to this class
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to classify image'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
+
       throw Exception('Failed to classify image');
     }
   }
@@ -61,10 +106,24 @@ class ImageClassifier implements ImageClassification {
       bool hasCavity = cavityData['hasCavity'] ?? false;
       return hasCavity;
     } else {
-      // Handle error here
-      if (kDebugMode) {
-        print('Failed to check for cavity with status ${cavityResponse.statusCode}');
-      }
+      showDialog(
+        context: context, // You'll need to pass the app's context to this class
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to check for cavity'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
+
       throw Exception('Failed to check for cavity');
     }
   }
