@@ -1,20 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:dentalrecognitionproject/classify.dart';
 import 'package:dentalrecognitionproject/infoscreen.dart';
 import 'package:dentalrecognitionproject/prediction.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// Import the image package
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -66,19 +61,6 @@ class _HomeState extends State<Home> {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       // Show an error dialog if there's no internet connection
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('err'.tr),
-          content: Text('internet'.tr),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('ok'.tr),
-            ),
-          ],
-        ),
-      );
       return;
     }
     setState(() {
@@ -86,7 +68,7 @@ class _HomeState extends State<Home> {
     });
 
     // Create an instance of the image classifier
-    ImageClassifier imageClassifier = ImageClassifier();
+    ImageClassifier imageClassifier = ImageClassifier(context);
 
     // Perform image classification
     List<Predictions> predictions = await imageClassifier.classify(image);
@@ -98,8 +80,7 @@ class _HomeState extends State<Home> {
 
     // Check if teeth are detected in the image
     bool containsTeeth =
-        _output.any((prediction) => prediction.tagName == 'teeth');
-
+        _output.any((prediction) => prediction.tagName == 'teeth' && prediction.probability! > 0.5);
     if (!containsTeeth) {
       // If teeth are not detected, show a message
       showDialog(
@@ -116,42 +97,18 @@ class _HomeState extends State<Home> {
         ),
       );
     } else {
-      // If teeth are detected, proceed to check for cavities using another API
+      bool hasCavity = await imageClassifier.checkForCavity(
+          image); // Use the ImageClassifier for cavity detection
 
-      // Replace the following constant and headers with the ones for the cavity detection API
-      const cavityUrl =
-          'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/b874109f-ffeb-428f-a30b-a9db47b75f26/classify/iterations/Iteration1/image';
-      final cavityHeaders = {
-        'Prediction-Key': '6c41e9fb16f64bf39c334fb6ae1761bc',
-        'Content-Type': 'application/octet-stream',
-      };
+      setState(() {
+        _resultText = hasCavity ? 'hasCavity'.tr : 'hasNoCavity'.tr;
+      });
 
-      try {
-        var cavityBytes = await image.readAsBytes();
-        var cavityResponse = await http.post(
-          Uri.parse(cavityUrl),
-          headers: cavityHeaders,
-          body: cavityBytes,
-        );
-
-        if (cavityResponse.statusCode == 200) {
-          if (kDebugMode) {
-            print(cavityResponse.body);
-          }
-
-          var cavityData = jsonDecode(cavityResponse.body);
-          bool hasCavity = cavityData['hasCavity'] ?? false;
-
-          setState(() {
-            _resultText = hasCavity
-                ? 'hasCavity'.tr
-                : 'hasNoCavity'.tr;
-          });
-
-          // Show the result to the user
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
+      // Show the result to the user
+      showDialog(
+        context: context,
+        builder: (context) =>
+            AlertDialog(
               title: Text('teethRes'.tr),
               content: Text(hasCavity
                   ? 'hasCavity'.tr
@@ -163,43 +120,9 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-          );
-          _pinchToZoomOverlayVisible = true;
-        } else {
-          // Handle error from the cavity detection API here
-          if (kDebugMode) {
-            print(
-                'Failed to check for cavity with status ${cavityResponse.statusCode}');
-          }
-
-          String errorMessage;
-          if (cavityResponse.statusCode == 400) {
-            errorMessage = 'API not available.';
-          } else {
-            errorMessage = 'An error occurred. Please try again later.';
-          }
-
-          // Show the error message to the user
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Error'),
-              content: Text(errorMessage),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text('ok'.tr),
-                ),
-              ],
-            ),
-          );
-        }
-      } catch (e) {
-        // Handle other exceptions that may occur
-        if (kDebugMode) {
-          print('Error while processing cavity detection: $e');
-        }
-
+      );
+      _pinchToZoomOverlayVisible = true;
+    }
         // Show a generic error message to the user
         showDialog(
           context: context,
@@ -215,8 +138,6 @@ class _HomeState extends State<Home> {
           ),
         );
       }
-    }
-  }
 
   Future<void> pickImage(ImageSource imageSource) async {
     var image = await picker.pickImage(source: imageSource);
