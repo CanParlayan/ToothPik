@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InfoScreen extends StatefulWidget {
   const InfoScreen({Key? key}) : super(key: key);
 
   @override
-  InfoScreenState createState() =>
-      InfoScreenState();
+  InfoScreenState createState() => InfoScreenState();
 }
 
 class InfoScreenState extends State<InfoScreen> {
@@ -15,14 +15,13 @@ class InfoScreenState extends State<InfoScreen> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('ATTENTION !'),
+      title: Text('att'.tr),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-              "When taking the photo, \nplease make sure your teeth are clearly visible and your camera's flash is on and the light does not cast a shadow."),
+          Text("info".tr),
           CheckboxListTile(
-            title: const Text("Don't show again"),
+            title: Text("dShow".tr),
             value: _isChecked,
             onChanged: (value) {
               setState(() {
@@ -40,7 +39,7 @@ class InfoScreenState extends State<InfoScreen> {
               _saveInfoScreenPreference();
             }
           },
-          child: const Text('OK'),
+          child: Text('ok'.tr),
         ),
       ],
     );

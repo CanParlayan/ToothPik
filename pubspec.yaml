@@ -1,4 +1,4 @@
-name: ToothPik
+name: toothpik
 description: Dental Recognition App made by Mert Çetin and Halil Can Parlayan
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -30,14 +30,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: 1.1.0
-  image_picker: 1.0.1
-  image: 4.0.17
-  shared_preferences: 2.2.0
+  http: ^1.1.0
+  image_picker: ^1.0.1
+  image: ^4.0.17
+  shared_preferences: ^2.2.0
   get: ^4.6.5
-  flutter_svg: 2.0.7
+  flutter_svg: ^2.0.7
   connectivity: ^3.0.6
-  path_provider: 2.0.15
 
 
 
@@ -58,7 +57,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
-
+repository: https://github.com/CanParlayan/flutterdentalrecognition
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -93,6 +92,6 @@ flutter_icons:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
-  #
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

@@ -8,7 +8,7 @@ import 'home_view_model.dart';
 
 class HomeScreen extends StatelessWidget {
   final HomeViewModel _viewModel = Get.find();
-  final resultText = Rx<String>('No image selected'.tr);
+  final resultText = Rx<String>('noImage'.tr);
 
   HomeScreen({Key? key}) : super(key: key);
 

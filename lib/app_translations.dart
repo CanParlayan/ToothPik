@@ -19,6 +19,8 @@ class AppTranslations extends Translations {
               "When taking the photo, Please make sure your teeth are clearly visible and your camera's flash is on and the light does not cast a shadow.",
           "dShow": "Don't Show Again",
           "err": "Error",
+          "errMsg":
+              "An error occurred. Please report the error to the developer.",
           "zoom": "Pinch to Zoom",
           "internet": "No internet connection. Please connect to the internet."
         },
@@ -38,6 +40,7 @@ class AppTranslations extends Translations {
               "Fotoğraf çekerken lütfen kameranızın flaşının açık olduğundan ve dişlerinizin net bir şekilde görünüp ışığın gölge yapmadığından emin olunuz.",
           "dShow": "Tekrar Gösterme",
           "err": "Hata",
+          "errMsg": "Bir hata oluştu. Lütfen hatayı geliştiriciye rapor edin.",
           "zoom": "Yakınlaştır",
           "internet": "İnternet bağlantısı yok. Lütfen internete bağlanın."
         },

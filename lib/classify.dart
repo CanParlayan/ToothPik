@@ -34,9 +34,8 @@ class ImageClassifier implements ImageClassification {
       var data = jsonDecode(response.body);
       List<dynamic> predictionsJson = data['predictions'];
 
-      List<Predictions> predictions = predictionsJson
-          .map((json) => Predictions.fromJson(json))
-          .toList();
+      List<Predictions> predictions =
+          predictionsJson.map((json) => Predictions.fromJson(json)).toList();
 
       return predictions;
     } else {
