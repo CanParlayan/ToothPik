@@ -5,10 +5,11 @@ class InfoScreen extends StatefulWidget {
   const InfoScreen({Key? key}) : super(key: key);
 
   @override
-  _InfoScreenState createState() => _InfoScreenState();
+  InfoScreenState createState() =>
+      InfoScreenState();
 }
 
-class _InfoScreenState extends State<InfoScreen> {
+class InfoScreenState extends State<InfoScreen> {
   bool _isChecked = false;
 
   @override

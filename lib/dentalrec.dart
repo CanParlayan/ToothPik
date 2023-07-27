@@ -1,4 +1,4 @@
-import 'package:dentalrecognitionproject/prediction.dart';
+import 'prediction.dart';
 
 class DentalRec {
   String? id;
@@ -35,4 +35,3 @@ class DentalRec {
     return data;
   }
 }
-
