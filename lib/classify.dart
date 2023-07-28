@@ -1,14 +1,24 @@
-import 'package:dentalrecognitionproject/prediction.dart';
-import 'dart:io';
+import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
-import 'abstractimageclassifier.dart';
+
+import 'prediction.dart';
+
+abstract class ImageClassification {
+  Future<List<Predictions>> classify(File image);
+
+  Future<bool> checkForCavity(File image);
+}
+
 class ImageClassifier implements ImageClassification {
+  ImageClassifier();
+
   @override
   Future<List<Predictions>> classify(File image) async {
     const url =
-        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1b465330-89d1-4acf-90c3-a64f76114ad3/detect/iterations/Iteration2/image';
+        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1b465330-89d1-4acf-90c3-a64f76114ad3/detect/iterations/Iteration3/image';
     final headers = {
       'Prediction-Key': '6c41e9fb16f64bf39c334fb6ae1761bc',
       'Content-Type': 'application/octet-stream',
@@ -20,22 +30,15 @@ class ImageClassifier implements ImageClassification {
       headers: headers,
       body: bytes,
     );
-
     if (response.statusCode == 200) {
-      print(response.body);
       var data = jsonDecode(response.body);
       List<dynamic> predictionsJson = data['predictions'];
 
-      List<Predictions> predictions = predictionsJson
-          .map((json) => Predictions.fromJson(json))
-          .toList(); // Convert JSON data to Predictions objects
+      List<Predictions> predictions =
+          predictionsJson.map((json) => Predictions.fromJson(json)).toList();
 
       return predictions;
     } else {
-      // Handle error here
-      if (kDebugMode) {
-        print('Failed with status ${response.statusCode}');
-      }
       throw Exception('Failed to classify image');
     }
   }
@@ -61,10 +64,6 @@ class ImageClassifier implements ImageClassification {
       bool hasCavity = cavityData['hasCavity'] ?? false;
       return hasCavity;
     } else {
-      // Handle error here
-      if (kDebugMode) {
-        print('Failed to check for cavity with status ${cavityResponse.statusCode}');
-      }
       throw Exception('Failed to check for cavity');
     }
   }

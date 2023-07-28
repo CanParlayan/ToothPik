@@ -10,7 +10,14 @@ class Predictions {
   double? height;
   Rect? boundingBox;
 
-  Predictions({this.probability, this.tagId, this.tagName, this.left, this.top, this.width, this.height});
+  Predictions(
+      {this.probability,
+      this.tagId,
+      this.tagName,
+      this.left,
+      this.top,
+      this.width,
+      this.height});
 
   Predictions.fromJson(Map<String, dynamic> json) {
     probability = json['probability'];
