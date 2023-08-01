@@ -22,7 +22,9 @@ class AppTranslations extends Translations {
           "errMsg":
               "An error occurred. Please report the error to the developer.",
           "zoom": "Pinch to Zoom",
-          "internet": "No internet connection. Please connect to the internet."
+          "internet": "No internet connection. Please connect to the internet.",
+          "disclaimer":
+              "This may not produce fully accurate results. This is just a prediction."
         },
         'tr': {
           "appTitle": "DişÇek",
@@ -42,7 +44,8 @@ class AppTranslations extends Translations {
           "err": "Hata",
           "errMsg": "Bir hata oluştu. Lütfen hatayı geliştiriciye rapor edin.",
           "zoom": "Yakınlaştır",
-          "internet": "İnternet bağlantısı yok. Lütfen internete bağlanın."
+          "internet": "İnternet bağlantısı yok. Lütfen internete bağlanın.",
+          "disclaimer": "Sonuçlar kesin değildir. Bunlar sadece birer tahmin"
         },
       };
 }
