@@ -96,41 +96,48 @@ class HomeViewModel extends GetxController {
         List<String> detectedIllnesses = [];
 
         bool hasCalculus = dentalIllnessData.entries.any((entry) =>
-        entry.key == 'calculus' && entry.value > 0.39);
+        entry.key == 'calculus' && entry.value > 0.47);
         if (hasCalculus) {
           detectedIllnesses.add("calculusRes".tr);
         }
 
-        bool hasMouthUlcer = dentalIllnessData.entries.any((entry) =>
-        entry.key == 'mouth ulcer' && entry.value > 0.39);
-        if (hasMouthUlcer) {
-          detectedIllnesses.add("ulcerRes".tr);
-        }
-
-        bool hasToothDecay = dentalIllnessData.entries.any((entry) =>
-        entry.key == 'tooth decay' && entry.value > 0.39);
-        if (hasToothDecay) {
-          detectedIllnesses.add("decayRes".tr);
-        }
-
         bool isHealthy = dentalIllnessData.entries.any((entry) =>
-        entry.key == 'healthy' && entry.value > 0.39);
+        entry.key == 'healthy' && entry.value > 0.75);
         if (isHealthy) {
-          detectedIllnesses.add("healthyRes".tr);
-        }
-
-        if (detectedIllnesses.isNotEmpty) {
-          if (detectedIllnesses.length > 1) {
-            // If there are more than one detected illnesses, add "and" before the last illness.
-            String lastIllness = detectedIllnesses.removeLast();
-            _dialogResultText.value = "${detectedIllnesses.join(", ")} and $lastIllness";
-          } else {
-            _dialogResultText.value = detectedIllnesses.join(", ");
-          }
+          // Handle the case when the person is healthy separately
+          _dialogResultText.value = "healthyRes".tr;
           resultText.value = _dialogResultText.value;
         } else {
-          _dialogResultText.value = "notHealthyRes".tr;
-          resultText.value = _dialogResultText.value;
+          bool hasMouthUlcer = dentalIllnessData.entries.any((entry) =>
+          entry.key == 'mouth ulcer' && entry.value > 0.48);
+          if (hasMouthUlcer) {
+            detectedIllnesses.add("ulcerRes".tr);
+          }
+
+          bool hasToothDecay = dentalIllnessData.entries.any((entry) =>
+          entry.key == 'tooth decay' && entry.value > 0.24);
+          if (hasToothDecay) {
+            detectedIllnesses.add("decayRes".tr);
+          }
+
+          if (detectedIllnesses.isNotEmpty) {
+            String doctor = "doctor".tr;
+            if (detectedIllnesses.length > 1) {
+              // If there are more than one detected illnesses, add "and" before the last illness.
+              String lastIllness = detectedIllnesses.removeLast();
+              String joinedIllnesses = detectedIllnesses.join(", ");
+              joinedIllnesses = joinedIllnesses.replaceAll(
+                  RegExp(r"[.,]"), ""); // Remove dots and spaces
+              _dialogResultText.value =
+              "$joinedIllnesses ${"and".tr} $lastIllness $doctor";
+            } else {
+              _dialogResultText.value = "${detectedIllnesses.first} $doctor";
+            }
+            resultText.value = _dialogResultText.value;
+          } else {
+            _dialogResultText.value = "notHealthyRes".tr;
+            resultText.value = _dialogResultText.value;
+          }
         }
 
 

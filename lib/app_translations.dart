@@ -21,12 +21,14 @@ class AppTranslations extends Translations {
               "An error occurred. Please report the error to the developer.",
           "zoom": "Zoom",
           "internet": "No internet connection. Please connect to the internet.",
-          "notHealthyRes": "Although we could not detect the problem, we are sure that your teeth are unhealthy. Please consult a dentist.",
+          "notHealthyRes": "Although we could not detect the problem, we are sure that your teeth are unhealthy.",
           "healthyRes": "Your teeth are healthy. Please continue to take care of your teeth.",
-          "calculusRes": "Your teeth have calculus. Please consult a dentist.",
-          "ulcerRes": "Your teeth have mouth ulcer. Please consult a dentist.",
-          "decayRes": "Your teeth have tooth decay. Please consult a dentist.",
-          "disclaimer": "Please consult a dentist for a more accurate result."
+          "calculusRes": "Your teeth have calculus.",
+          "ulcerRes": "Your teeth have mouth ulcer.",
+          "decayRes": "Your teeth have tooth decay.",
+          "disclaimer": "Please consult a dentist for a more accurate result.",
+          "and":"and",
+  "doctor":"Please consult a dentist."
         },
         'tr': {
           "appTitle": "ÇekDiş",
@@ -49,10 +51,12 @@ class AppTranslations extends Translations {
           "internet": "İnternet bağlantısı yok. Lütfen internete bağlanın.",
               "notHealthyRes":"Sorunu tespit edemedik ama dişlerinizin sağlıksız olduğundan eminiz. Lütfen bir diş hekimine danışınız.",
           "healthyRes":"Dişleriniz sağlıklı. Lütfen dişlerinize dikkat etmeye devam ediniz.",
-              "calculusRes":"Diş taşınız(tartarınız) var. Lütfen bir diş hekimine danışınız.",
-          "ulcerRes":"Ağız ülseriniz var. Lütfen bir diş hekimine danışınız.",
-          "decayRes":"Diş çürüğünüz var. Lütfen bir diş hekimine danışınız.",
-  "disclaimer": "Kesin sonuç için lütfen bir diş hekimine danışınız."
+              "calculusRes":"Diş taşınız(tartarınız) var.",
+          "ulcerRes":"Ağız ülseriniz var.",
+          "decayRes":"Diş çürüğünüz var.",
+  "disclaimer": "Kesin sonuç için lütfen bir diş hekimine danışınız.",
+          "and":"ve",
+          "doctor":"Lütfen bir diş hekimine danışınız."
         },
       };
 }

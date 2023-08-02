@@ -51,7 +51,7 @@ class ImageClassifier implements ImageClassification {
   @override
   Future<Map<String, double>> checkForDentalIllness(File image) async {
     const dentalUrl =
-        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/26e37ef9-75e0-4e14-818a-e3dc13b80a9d/classify/iterations/Iteration3/image';
+        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/26e37ef9-75e0-4e14-818a-e3dc13b80a9d/classify/iterations/Iteration5/image';
     final dentalHeaders = {
       'Prediction-Key': '6c41e9fb16f64bf39c334fb6ae1761bc',
       'Content-Type': 'application/octet-stream',
