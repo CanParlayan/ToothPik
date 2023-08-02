@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-import 'prediction.dart'; // Import Predictions class from prediction.dart
+import 'prediction.dart';
 
 abstract class ImageClassification {
   Future<List<Predictions>> classify(File image);
@@ -41,9 +41,6 @@ class ImageClassifier implements ImageClassification {
 
       return predictions;
     } else {
-      // exception here should show the exact error
-      response.body;
-      response.statusCode;
       throw Exception('Teeth identification failed');
     }
   }
@@ -58,7 +55,8 @@ class ImageClassifier implements ImageClassification {
     };
 
     var dentalBytes = await image.readAsBytes();
-    var dentalResponse = await http.post(
+    var dentalResponse = await http
+        .post(
       Uri.parse(dentalUrl),
       headers: dentalHeaders,
       body: dentalBytes,
@@ -66,7 +64,8 @@ class ImageClassifier implements ImageClassification {
         .timeout(
       const Duration(seconds: 10),
       onTimeout: () {
-        throw TimeoutException('The connection has timed out, please try again!');
+        throw TimeoutException(
+            'The connection has timed out, please try again!');
       },
     );
     dentalResponse.body;
@@ -75,10 +74,8 @@ class ImageClassifier implements ImageClassification {
       var dentalData = jsonDecode(dentalResponse.body);
       List<dynamic> predictionsJson = dentalData['predictions'];
 
-      // Create a map to store the condition names and their probabilities.
       Map<String, double> dentalPredictions = {};
 
-      // Iterate through the predictions and extract the necessary information.
       for (var prediction in predictionsJson) {
         String tagName = prediction['tagName'];
         double probability = prediction['probability'];

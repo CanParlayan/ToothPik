@@ -30,8 +30,7 @@ class HomeScreen extends StatelessWidget {
                             child: GestureDetector(
                               onTap: () {
                                 FocusScope.of(context).unfocus();
-                                _viewModel
-                                    .setPinchToZoomOverlayVisible(false);
+                                _viewModel.setPinchToZoomOverlayVisible(false);
                               },
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(30),
@@ -180,30 +179,27 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 30),
-        Obx(() => Text(_viewModel.resultText.value,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                  )
-        ),
+                  Obx(() => Text(
+                        _viewModel.resultText.value,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      )),
                 ],
               ),
-              const SizedBox(
-    height:
-    20), // Add some space between the main content and the disclaimer
-    Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: Text(
-    'disclaimer'.tr,
-    textAlign: TextAlign.center,
-    style: const TextStyle(
-    color: Colors.white,
-    fontSize: 8,
-    ),
-    ),
-    ),
-
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'disclaimer'.tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 8,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
