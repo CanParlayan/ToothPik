@@ -6,8 +6,10 @@ class AppTranslations extends Translations {
         'en': {
           'appTitle': 'ToothPik',
           'takePhoto': 'Take A Photo',
-          'pickGallery': 'From Gallery',
+          'pickGallery': 'Pick From Gallery',
           'noImage': 'No Image Selected',
+          "hasCavity": "Your teeth have cavity.",
+          "hasNoCavity": "Your teeth are cavity-free.",
           "teethRes": "Teeth Classification Result",
           "ok": "OK",
           "noTeeth": "No Teeth Detected",
@@ -19,17 +21,13 @@ class AppTranslations extends Translations {
           "err": "Error",
           "errMsg":
               "An error occurred. Please report the error to the developer.",
-          "zoom": "Zoom",
+          "zoom": "Pinch to Zoom",
           "internet": "No internet connection. Please connect to the internet.",
-          "notHealthyRes": "Although we could not detect the problem, we are sure that your teeth are unhealthy. Please consult a dentist.",
-          "healthyRes": "Your teeth are healthy. Please continue to take care of your teeth.",
-          "calculusRes": "Your teeth have calculus. Please consult a dentist.",
-          "ulcerRes": "Your teeth have mouth ulcer. Please consult a dentist.",
-          "decayRes": "Your teeth have tooth decay. Please consult a dentist.",
-          "disclaimer": "Please consult a dentist for a more accurate result."
+          "disclaimer":
+              "This may not produce fully accurate results. This is just a prediction."
         },
         'tr': {
-          "appTitle": "ÇekDiş",
+          "appTitle": "DişÇek",
           "takePhoto": "Fotoğraf Çek",
           "pickGallery": "Galeriden Seç",
           "noImage": "Resim Seçilmedi",
@@ -47,12 +45,7 @@ class AppTranslations extends Translations {
           "errMsg": "Bir hata oluştu. Lütfen hatayı geliştiriciye rapor edin.",
           "zoom": "Yakınlaştır",
           "internet": "İnternet bağlantısı yok. Lütfen internete bağlanın.",
-              "notHealthyRes":"Sorunu tespit edemedik ama dişlerinizin sağlıksız olduğundan eminiz. Lütfen bir diş hekimine danışınız.",
-          "healthyRes":"Dişleriniz sağlıklı. Lütfen dişlerinize dikkat etmeye devam ediniz.",
-              "calculusRes":"Diş taşınız(tartarınız) var. Lütfen bir diş hekimine danışınız.",
-          "ulcerRes":"Ağız ülseriniz var. Lütfen bir diş hekimine danışınız.",
-          "decayRes":"Diş çürüğünüz var. Lütfen bir diş hekimine danışınız.",
-  "disclaimer": "Kesin sonuç için lütfen bir diş hekimine danışınız."
+          "disclaimer": "Sonuçlar kesin değildir. Bunlar sadece birer tahmin"
         },
       };
 }

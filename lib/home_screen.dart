@@ -8,6 +8,7 @@ import 'home_view_model.dart';
 
 class HomeScreen extends StatelessWidget {
   final HomeViewModel _viewModel = Get.find();
+  final resultText = Rx<String>('noImage'.tr);
 
   HomeScreen({Key? key}) : super(key: key);
 
@@ -17,13 +18,13 @@ class HomeScreen extends StatelessWidget {
         height: MediaQuery.of(context).size.height * 0.6,
         child: GestureDetector(
           onTap: () {
-            _viewModel.setPinchToZoomOverlayVisible(false);
+            _viewModel.setPinchToZoomOverlayVisible(false.obs);
           },
           child: Stack(
             children: [
               Center(
                 child: Obx(() => _viewModel.loading
-                    ? const CircularProgressIndicator()
+                    ? const CircularProgressIndicator.adaptive()
                     : _viewModel.image != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(30),
@@ -31,7 +32,7 @@ class HomeScreen extends StatelessWidget {
                               onTap: () {
                                 FocusScope.of(context).unfocus();
                                 _viewModel
-                                    .setPinchToZoomOverlayVisible(false);
+                                    .setPinchToZoomOverlayVisible(false.obs);
                               },
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(30),
@@ -71,7 +72,7 @@ class HomeScreen extends StatelessWidget {
         absorbing: _viewModel.loading || !_viewModel.pinchToZoomOverlayVisible,
         child: GestureDetector(
           onTap: () {
-            _viewModel.setPinchToZoomOverlayVisible(false);
+            _viewModel.setPinchToZoomOverlayVisible(false.obs);
           },
           child: ClipRRect(
             borderRadius: borderRadius,
@@ -180,30 +181,29 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 30),
-        Obx(() => Text(_viewModel.resultText.value,
+                  Text(
+                    _viewModel.resultText.tr,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: 16,
                     ),
                   )
-        ),
                 ],
               ),
               const SizedBox(
-    height:
-    20), // Add some space between the main content and the disclaimer
-    Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: Text(
-    'disclaimer'.tr,
-    textAlign: TextAlign.center,
-    style: const TextStyle(
-    color: Colors.white,
-    fontSize: 8,
-    ),
-    ),
-    ),
-
+                  height:
+                      20), // Add some space between the main content and the disclaimer
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'disclaimer'.tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
