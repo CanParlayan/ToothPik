@@ -8,7 +8,6 @@ import 'home_view_model.dart';
 
 class HomeScreen extends StatelessWidget {
   final HomeViewModel _viewModel = Get.find();
-  final resultText = Rx<String>('noImage'.tr);
 
   HomeScreen({Key? key}) : super(key: key);
 
@@ -18,7 +17,7 @@ class HomeScreen extends StatelessWidget {
         height: MediaQuery.of(context).size.height * 0.6,
         child: GestureDetector(
           onTap: () {
-            _viewModel.setPinchToZoomOverlayVisible(false.obs);
+            _viewModel.setPinchToZoomOverlayVisible(false);
           },
           child: Stack(
             children: [
@@ -32,7 +31,7 @@ class HomeScreen extends StatelessWidget {
                               onTap: () {
                                 FocusScope.of(context).unfocus();
                                 _viewModel
-                                    .setPinchToZoomOverlayVisible(false.obs);
+                                    .setPinchToZoomOverlayVisible(false);
                               },
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(30),
@@ -72,7 +71,7 @@ class HomeScreen extends StatelessWidget {
         absorbing: _viewModel.loading || !_viewModel.pinchToZoomOverlayVisible,
         child: GestureDetector(
           onTap: () {
-            _viewModel.setPinchToZoomOverlayVisible(false.obs);
+            _viewModel.setPinchToZoomOverlayVisible(false);
           },
           child: ClipRRect(
             borderRadius: borderRadius,
@@ -181,15 +180,30 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Text(
-                    _viewModel.resultText.tr,
+        Obx(() => Text(_viewModel.resultText.value,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 12,
                     ),
                   )
+        ),
                 ],
               ),
+              const SizedBox(
+    height:
+    20), // Add some space between the main content and the disclaimer
+    Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Text(
+    'disclaimer'.tr,
+    textAlign: TextAlign.center,
+    style: const TextStyle(
+    color: Colors.white,
+    fontSize: 8,
+    ),
+    ),
+    ),
+
             ],
           ),
         ),

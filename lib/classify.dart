@@ -4,12 +4,12 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-import 'prediction.dart';
+import 'prediction.dart'; // Import Predictions class from prediction.dart
 
 abstract class ImageClassification {
   Future<List<Predictions>> classify(File image);
 
-  Future<bool> checkForCavity(File image);
+  Future<Map<String, double>> checkForDentalIllness(File image);
 }
 
 class ImageClassifier implements ImageClassification {
@@ -18,7 +18,7 @@ class ImageClassifier implements ImageClassification {
   @override
   Future<List<Predictions>> classify(File image) async {
     const url =
-        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1b465330-89d1-4acf-90c3-a64f76114ad3/detect/iterations/Iteration3/image';
+        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/d7ea90e0-a0a9-4b6f-8362-e706d522e20f/classify/iterations/Iteration1/image';
     final headers = {
       'Prediction-Key': '6c41e9fb16f64bf39c334fb6ae1761bc',
       'Content-Type': 'application/octet-stream',
@@ -30,6 +30,8 @@ class ImageClassifier implements ImageClassification {
       headers: headers,
       body: bytes,
     );
+    response.body;
+    response.statusCode;
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       List<dynamic> predictionsJson = data['predictions'];
@@ -39,32 +41,53 @@ class ImageClassifier implements ImageClassification {
 
       return predictions;
     } else {
-      throw Exception('Failed to classify image');
+      // exception here should show the exact error
+      response.body;
+      response.statusCode;
+      throw Exception('Teeth identification failed');
     }
   }
 
   @override
-  Future<bool> checkForCavity(File image) async {
-    const cavityUrl =
-        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/b874109f-ffeb-428f-a30b-a9db47b75f26/classify/iterations/Iteration1/image';
-    final cavityHeaders = {
+  Future<Map<String, double>> checkForDentalIllness(File image) async {
+    const dentalUrl =
+        'https://dentalprediction-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/26e37ef9-75e0-4e14-818a-e3dc13b80a9d/classify/iterations/Iteration3/image';
+    final dentalHeaders = {
       'Prediction-Key': '6c41e9fb16f64bf39c334fb6ae1761bc',
       'Content-Type': 'application/octet-stream',
     };
 
-    var cavityBytes = await image.readAsBytes();
-    var cavityResponse = await http.post(
-      Uri.parse(cavityUrl),
-      headers: cavityHeaders,
-      body: cavityBytes,
+    var dentalBytes = await image.readAsBytes();
+    var dentalResponse = await http.post(
+      Uri.parse(dentalUrl),
+      headers: dentalHeaders,
+      body: dentalBytes,
+    )
+        .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        throw TimeoutException('The connection has timed out, please try again!');
+      },
     );
+    dentalResponse.body;
+    dentalResponse.statusCode;
+    if (dentalResponse.statusCode == 200) {
+      var dentalData = jsonDecode(dentalResponse.body);
+      List<dynamic> predictionsJson = dentalData['predictions'];
 
-    if (cavityResponse.statusCode == 200) {
-      var cavityData = jsonDecode(cavityResponse.body);
-      bool hasCavity = cavityData['hasCavity'] ?? false;
-      return hasCavity;
+      // Create a map to store the condition names and their probabilities.
+      Map<String, double> dentalPredictions = {};
+
+      // Iterate through the predictions and extract the necessary information.
+      for (var prediction in predictionsJson) {
+        String tagName = prediction['tagName'];
+        double probability = prediction['probability'];
+        dentalPredictions[tagName] = probability;
+      }
+
+      return dentalPredictions;
     } else {
-      throw Exception('Failed to check for cavity');
+      throw Exception('Failed to check for dental illness');
     }
   }
 }

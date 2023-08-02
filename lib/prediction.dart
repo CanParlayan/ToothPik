@@ -18,7 +18,6 @@ class Predictions {
       this.top,
       this.width,
       this.height});
-
   Predictions.fromJson(Map<String, dynamic> json) {
     probability = json['probability'];
     tagId = json['tagId'];

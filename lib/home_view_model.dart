@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,40 +12,18 @@ import 'prediction.dart';
 
 class HomeViewModel extends GetxController {
   final ImagePicker _picker = ImagePicker();
-  RxBool _loading = false.obs;
-  Rx<File?> _image = Rx<File?>(null);
-  RxList<Predictions> _output = RxList<Predictions>([]);
-  String _resultText = '';
-  RxBool _pinchToZoomOverlayVisible = false.obs;
-
-  void setPinchToZoomOverlayVisible(RxBool value) {
-    _pinchToZoomOverlayVisible = value;
-  }
-
-  void setLoading(RxBool value) {
-    _loading = value;
-  }
-
-  void setImage(Rx<File?> value) {
-    _image = value;
-  }
-
-  void setOutput(RxList<Predictions> value) {
-    _output = value;
-  }
-
-  void setResultText(String value) {
-    _resultText = value;
-  }
-
+  final RxBool _loading = false.obs;
+  final Rx<File?> _image = Rx<File?>(null);
+  final RxList<Predictions> _output = RxList<Predictions>([]);
+  final RxString _dialogResultText = RxString('');
+  final RxBool _isDialogVisible = RxBool(false);
+  final RxBool _pinchToZoomOverlayVisible = false.obs;
+  final RxString resultText = ''.obs;
   bool get loading => _loading.value;
-
   File? get image => _image.value;
-
   List<Predictions> get output => _output.toList();
-
-  String get resultText => _resultText;
-
+  String get dialogResultText => _dialogResultText.value;
+  bool get isDialogVisible => _isDialogVisible.value;
   bool get pinchToZoomOverlayVisible => _pinchToZoomOverlayVisible.value;
 
   @override
@@ -58,7 +35,9 @@ class HomeViewModel extends GetxController {
       showInfoScreenIfNeeded();
     });
   }
-
+  void setPinchToZoomOverlayVisible(bool value) {
+    _pinchToZoomOverlayVisible.value = value;
+  }
   Future<void> showInfoScreenIfNeeded() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool shouldShowInfoScreen = prefs.getBool('showInfoScreen') ?? true;
@@ -87,15 +66,15 @@ class HomeViewModel extends GetxController {
       return;
     }
     _loading.value = true;
-
     ImageClassifier imageClassifier = ImageClassifier();
 
     try {
       List<Predictions> predictions = await imageClassifier.classify(image);
+
       _output.assignAll(predictions);
 
       bool containsTeeth = _output.any((prediction) =>
-          prediction.tagName == 'teeth' && prediction.probability! > 0.5);
+      prediction.tagName == 'teeth' && prediction.probability! > 0.5);
 
       if (!containsTeeth) {
         Get.dialog(
@@ -112,14 +91,53 @@ class HomeViewModel extends GetxController {
           barrierDismissible: false,
         );
       } else {
-        bool hasCavity = await imageClassifier.checkForCavity(image);
 
-        _resultText = hasCavity ? 'hasCavity'.tr : 'hasNoCavity'.tr;
+        Map<String, double> dentalIllnessData = await imageClassifier.checkForDentalIllness(image);
+        List<String> detectedIllnesses = [];
+
+        bool hasCalculus = dentalIllnessData.entries.any((entry) =>
+        entry.key == 'calculus' && entry.value > 0.39);
+        if (hasCalculus) {
+          detectedIllnesses.add("calculusRes".tr);
+        }
+
+        bool hasMouthUlcer = dentalIllnessData.entries.any((entry) =>
+        entry.key == 'mouth ulcer' && entry.value > 0.39);
+        if (hasMouthUlcer) {
+          detectedIllnesses.add("ulcerRes".tr);
+        }
+
+        bool hasToothDecay = dentalIllnessData.entries.any((entry) =>
+        entry.key == 'tooth decay' && entry.value > 0.39);
+        if (hasToothDecay) {
+          detectedIllnesses.add("decayRes".tr);
+        }
+
+        bool isHealthy = dentalIllnessData.entries.any((entry) =>
+        entry.key == 'healthy' && entry.value > 0.39);
+        if (isHealthy) {
+          detectedIllnesses.add("healthyRes".tr);
+        }
+
+        if (detectedIllnesses.isNotEmpty) {
+          if (detectedIllnesses.length > 1) {
+            // If there are more than one detected illnesses, add "and" before the last illness.
+            String lastIllness = detectedIllnesses.removeLast();
+            _dialogResultText.value = "${detectedIllnesses.join(", ")} and $lastIllness";
+          } else {
+            _dialogResultText.value = detectedIllnesses.join(", ");
+          }
+          resultText.value = _dialogResultText.value;
+        } else {
+          _dialogResultText.value = "notHealthyRes".tr;
+          resultText.value = _dialogResultText.value;
+        }
+
 
         Get.dialog(
           AlertDialog(
             title: Text('teethRes'.tr),
-            content: Text(_resultText),
+            content: Text(_dialogResultText.value),
             actions: [
               TextButton(
                 onPressed: () => Get.back(),
@@ -129,14 +147,51 @@ class HomeViewModel extends GetxController {
           ),
           barrierDismissible: false,
         );
-
         _pinchToZoomOverlayVisible.value = true;
       }
     } catch (e) {
       if (kDebugMode) {
         print('Error while processing image classification: $e');
       }
+      Get.dialog(
+        AlertDialog(
+          title: Text('err'.tr),
+          content: Text('errMsg'.tr),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text('ok'.tr),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    } finally {
+      _loading.value = false;
+      _isDialogVisible.value = true;
+      _pinchToZoomOverlayVisible.value = true;
 
+    }
+  }
+
+  Future<void> pickImage(ImageSource imageSource) async {
+    var image = await _picker.pickImage(source: imageSource, imageQuality: 50);
+    if (image == null) {
+      return;
+    }
+
+    if (kDebugMode) {
+      print("Image Path: ${image.path}");
+    } // Add this line to log the image path
+    _image.value = File(image.path);
+    _loading.value = true;
+
+    try {
+      await classifyImage(_image.value!);
+    } catch (e) {
+        if (kDebugMode) {
+          print('Error while picking image: $e');
+        }
       Get.dialog(
         AlertDialog(
           title: Text('err'.tr),
@@ -155,35 +210,18 @@ class HomeViewModel extends GetxController {
     }
   }
 
-  Future<void> pickImage(ImageSource imageSource) async {
-    var image = await _picker.pickImage(source: imageSource);
-    if (image == null) {
-      return;
-    }
-
-    _image.value = File(image.path);
-    _loading.value = true;
-
-    try {
-      await classifyImage(_image.value!);
-    } finally {
-      _loading.value = false;
-    }
-  }
 
   void changeLanguage(String languageCode, String? countryCode) {
     Locale locale = Locale(languageCode, countryCode);
     Get.updateLocale(locale);
-
-    _resultText = _output.isEmpty
-        ? ''
-        : _output[0].tagName == 'teeth'
-            ? 'hasNoCavity'.tr
-            : 'hasCavity'.tr;
   }
 
   void resetResultTextAndPickImage(ImageSource source) {
-    _resultText = '';
+    resetResultTextAndPinchToZoomOverlay();
     pickImage(source);
+  }
+  void resetResultTextAndPinchToZoomOverlay() {
+    _dialogResultText.value = '';
+    _pinchToZoomOverlayVisible.value = false;
   }
 }
