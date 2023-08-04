@@ -10,7 +10,7 @@ class DentalIllnessDetector {
 
   void detectIllnesses(Map<String, String> illnessTranslations) {
     bool isHealthy = dentalIllnessData.entries
-        .any((entry) => entry.key == 'healthy' && entry.value > 0.47);
+        .any((entry) => entry.key == 'healthy' && entry.value > 0.58);
     if (isHealthy) {
       _dialogResultText = "healthyRes".tr;
     } else {
